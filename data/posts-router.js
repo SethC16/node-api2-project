@@ -4,10 +4,13 @@ const router = express.Router();
 
 const Posts = require('./db');
 
+const environment = process.env;
+const port = process.env.PORT || 5000;
+
 router.get('/', (req, res) => {
     Posts.find(req.query)
         .then( post => {
-            res.status(200).json(post);
+            res.status(200).json({ motd: process.env.MOTD, port, environment, post});
         })
         .catch( error => {
             console.log(error)
@@ -66,8 +69,8 @@ router.post('/', (req, res) => {
 })
 
 router.post('/:id/comments', (req, res) => {
-    // Posts.findPostComments(req.params.id)
-    Posts.insertComment(req.body)
+    const commentsInfo = { text: req.body, post_id: req.params.id }
+    Posts.insertComment(commentsInfo)
         .then( comment => {
             if (comment) { 
                 res.status(201).json(comment);
